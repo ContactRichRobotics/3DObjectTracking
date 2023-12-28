@@ -14,7 +14,7 @@ import cv2
 
 
 def generate_tracker_config(
-    tracker_name,
+    tracker_name_list,
     model_dir,
     sequence_dir,
     sequence_id,
@@ -23,18 +23,18 @@ def generate_tracker_config(
     # config macro
     OBJECT_SCALE = 1.0  # the size of object, influencing the accept threshold for depth modality
 
-    # generate the obj file if not exist
-    obj_path = os.path.join(model_dir, f"{tracker_name}.obj")
-
-    # copy the obj file
+    # Prepare path
     export_path = os.path.join(export_dir, f"{sequence_id:04d}")
     os.makedirs(export_path, exist_ok=True)
 
-    sequence_path = os.path.join(sequence_dir, f"{sequence_id:04d}")
+    for tracker_name in tracker_name_list:
+        # generate the obj file if not exist
+        obj_path = os.path.join(model_dir, tracker_name, f"{tracker_name}.obj")
+        sequence_path = os.path.join(sequence_dir, f"{sequence_id:04d}")
 
-    export_obj_path = os.path.join(export_path, f"{tracker_name}.obj")
-    os.makedirs(os.path.dirname(export_obj_path), exist_ok=True)
-    os.system("cp {} {}".format(obj_path, export_obj_path))
+        export_obj_path = os.path.join(export_path, f"{tracker_name}.obj")
+        os.makedirs(os.path.dirname(export_obj_path), exist_ok=True)
+        os.system("cp {} {}".format(obj_path, export_obj_path))
 
     # save the config yaml
     config_yaml_path = os.path.join(export_path, "config.yaml")
@@ -61,49 +61,53 @@ def generate_tracker_config(
     config_s.startWriteStruct("RendererGeometry", cv2.FileNode_SEQ)
     config_s.startWriteStruct("", cv2.FileNode_MAP)
     config_s.write("name", "renderer_geometry")
-    config_s.write("bodies", [tracker_name])
+    config_s.write("bodies", tracker_name_list)
     config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the body
     config_s.startWriteStruct("Body", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", tracker_name)
-    config_s.write("metafile_path", "object.yaml")
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", tracker_name)
+        config_s.write("metafile_path", f"{tracker_name}_object.yaml")
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the network detector
     detector_method = "StaticDetector"
     config_s.startWriteStruct(detector_method, cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", "detector")
-    config_s.write("metafile_path", "detector.yaml")
-    config_s.write("optimizer", f"{tracker_name}_optimizer")
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_detector")
+        config_s.write("metafile_path", f"{tracker_name}_detector.yaml")
+        config_s.write("optimizer", f"{tracker_name}_optimizer")
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the region model
     config_s.startWriteStruct("RegionModel", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", "region_model")
-    config_s.write("metafile_path", "model.yaml")
-    config_s.write("body", tracker_name)
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_region_model")
+        config_s.write("metafile_path", "model.yaml")
+        config_s.write("body", tracker_name)
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the region modality
     config_s.startWriteStruct("RegionModality", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", "region_modality")
-    config_s.write("body", tracker_name)
-    config_s.write("color_camera", "loader_color")
-    config_s.write("region_model", "region_model")
-    config_s.write("metafile_path", "region_modality.yaml")
-    config_s.startWriteStruct("measure_occlusions", cv2.FileNode_MAP)
-    config_s.write("depth_camera", "loader_depth")
-    config_s.endWriteStruct()
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_region_modality")
+        config_s.write("body", tracker_name)
+        config_s.write("color_camera", "loader_color")
+        config_s.write("region_model", f"{tracker_name}_region_model")
+        config_s.write("metafile_path", "region_modality.yaml")
+        config_s.startWriteStruct("measure_occlusions", cv2.FileNode_MAP)
+        config_s.write("depth_camera", "loader_depth")
+        config_s.endWriteStruct()
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the depth camera
@@ -125,41 +129,44 @@ def generate_tracker_config(
 
     # save the depth model
     config_s.startWriteStruct("DepthModel", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", "depth_model")
-    config_s.write("metafile_path", "model.yaml")
-    config_s.write("body", tracker_name)
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_depth_model")
+        config_s.write("metafile_path", "model.yaml")
+        config_s.write("body", tracker_name)
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the depth modality
     config_s.startWriteStruct("DepthModality", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", "depth_modality")
-    config_s.write("body", tracker_name)
-    config_s.write("depth_camera", "loader_depth")
-    config_s.write("depth_model", "depth_model")
-    config_s.write("metafile_path", "depth_modality.yaml")
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_depth_modality")
+        config_s.write("body", tracker_name)
+        config_s.write("depth_camera", "loader_depth")
+        config_s.write("depth_model", f"{tracker_name}_depth_model")
+        config_s.write("metafile_path", "depth_modality.yaml")
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the link
     config_s.startWriteStruct("Link", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", f"{tracker_name}_link")
-    config_s.write("body", tracker_name)
-    modality_list = ["region_modality"]
-    modality_list.append("depth_modality")
-    config_s.write("modalities", modality_list)
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_link")
+        config_s.write("body", tracker_name)
+        modality_list = [f"{tracker_name}_region_modality", f"{tracker_name}_depth_modality"]
+        config_s.write("modalities", modality_list)
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the optimizer
     config_s.startWriteStruct("Optimizer", cv2.FileNode_SEQ)
-    config_s.startWriteStruct("", cv2.FileNode_MAP)
-    config_s.write("name", f"{tracker_name}_optimizer")
-    config_s.write("root_link", f"{tracker_name}_link")
-    config_s.endWriteStruct()
+    for tracker_name in tracker_name_list:
+        config_s.startWriteStruct("", cv2.FileNode_MAP)
+        config_s.write("name", f"{tracker_name}_optimizer")
+        config_s.write("root_link", f"{tracker_name}_link")
+        config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the tracker
@@ -170,8 +177,8 @@ def generate_tracker_config(
     viewer_list.append("depth_viewer")
 
     config_s.write("viewers", viewer_list)
-    config_s.write("detectors", ["detector"])
-    config_s.write("optimizers", [f"{tracker_name}_optimizer"])
+    config_s.write("detectors", [f"{tracker_name}_detector" for tracker_name in tracker_name_list])
+    config_s.write("optimizers", [f"{tracker_name}_optimizer" for tracker_name in tracker_name_list])
     config_s.endWriteStruct()
     config_s.endWriteStruct()
     config_s.release()
@@ -232,12 +239,13 @@ def generate_tracker_config(
     cam_depth_s.release()
 
     # save the detector
-    config_yaml_path = os.path.join(export_path, "detector.yaml")
-    detector_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
-    init_pose = np.eye(4, dtype=np.float32)
-    detector_s.write("link2world_pose", np.linalg.inv(init_pose))  # the object init position
-    detector_s.write("reinit_iter", 0)  # no reinit
-    detector_s.release()
+    for tracker_name in tracker_name_list:
+        config_yaml_path = os.path.join(export_path, f"{tracker_name}_detector.yaml")
+        detector_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
+        init_pose = np.eye(4, dtype=np.float32)
+        detector_s.write("link2world_pose", np.linalg.inv(init_pose))  # the object init position
+        detector_s.write("reinit_iter", 0)  # no reinit
+        detector_s.release()
 
     # save the model
     config_yaml_path = os.path.join(export_path, "model.yaml")
@@ -274,15 +282,16 @@ def generate_tracker_config(
     modality_s.release()
 
     # save the object
-    config_yaml_path = os.path.join(export_path, "object.yaml")
-    object_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
-    object_s.write("geometry_path", f"{tracker_name}.obj")
-    object_s.write("geometry_unit_in_meter", 1.0)
-    object_s.write("geometry_counterclockwise", 1)
-    object_s.write("geometry_enable_culling", 1)
-    object_s.write("geometry_enable_texture", 1)  # enable color
-    object_s.write("geometry2body_pose", np.eye(4))  # the pose of the geometry in the body frame
-    object_s.release()
+    for tracker_name in tracker_name_list:
+        config_yaml_path = os.path.join(export_path, f"{tracker_name}_object.yaml")
+        object_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
+        object_s.write("geometry_path", f"{tracker_name}.obj")
+        object_s.write("geometry_unit_in_meter", 1.0)
+        object_s.write("geometry_counterclockwise", 1)
+        object_s.write("geometry_enable_culling", 1)
+        object_s.write("geometry_enable_texture", 1)  # enable color
+        object_s.write("geometry2body_pose", np.eye(4))  # the pose of the geometry in the body frame
+        object_s.release()
 
 
 if __name__ == "__main__":
@@ -296,15 +305,15 @@ if __name__ == "__main__":
     # args = parser.parse_args()
 
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    tracker_name = "plug"
-    model_dir = os.path.join(root_dir, "test_data", "model", "plug")
+    tracker_name_list = ["plug", "socket"]
+    model_dir = os.path.join(root_dir, "test_data", "model")
     sequence_dir = os.path.join(root_dir, "test_data", "sequence")
     sequence_id = 0
     export_dir = os.path.join(root_dir, "test_data", "config")
 
     # generate the tracker config
     generate_tracker_config(
-        tracker_name,
+        tracker_name_list,
         model_dir,
         sequence_dir,
         sequence_id,

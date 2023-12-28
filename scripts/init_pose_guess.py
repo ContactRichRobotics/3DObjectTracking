@@ -22,6 +22,7 @@ def get_points(color, depth, intrinsic, depth_scale=0.001, depth_trunc=1.0):
     colors = color.reshape(-1, 3)
     return points, colors
 
+
 def print_pose(pose):
     """Print the pose"""
     pose_str = ",".join([f"{p:.6f}" for p in pose.flatten()])
@@ -31,22 +32,29 @@ def print_pose(pose):
 if __name__ == "__main__":
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    tracker_name = "plug"
-    model_dir = os.path.join(root_dir, "test_data", "model", "plug")
+    tracker_name_list = ["plug", "socket"]
+    model_dir = os.path.join(root_dir, "test_data", "model")
     sequence_dir = os.path.join(root_dir, "test_data", "sequence")
     sequence_id = 0
     export_dir = os.path.join(root_dir, "test_data", "config")
 
     # Init pose
-    init_pose = np.eye(4, dtype=np.float32)
-    init_pose[:3, 3] = np.array([-0.2, 0.15, 0.62])
-    init_pose[:3, :3] = R.from_euler("xyz", [90, 0.0, 0.0], degrees=True).as_matrix()
+    init_pose_0 = np.eye(4, dtype=np.float32)
+    init_pose_0[:3, 3] = np.array([-0.2, 0.15, 0.62])
+    init_pose_0[:3, :3] = R.from_euler("xyz", [90, 0.0, 0.0], degrees=True).as_matrix()
+    init_pose_1 = np.eye(4, dtype=np.float32)
+    init_pose_1[:3, 3] = np.array([-0.05, 0.115, 0.75])
+    init_pose_1[:3, :3] = R.from_euler("xyz", [100, 0.0, 0.0], degrees=True).as_matrix()
+    init_pose = [init_pose_0, init_pose_1]
 
     # Load obj file
-    obj_path = os.path.join(model_dir, f"{tracker_name}.obj")
-    mesh = o3d.io.read_triangle_mesh(obj_path)
-    mesh.compute_vertex_normals()
-    mesh.transform(init_pose)
+    mesh_list = []
+    for idx, tracker_name in enumerate(tracker_name_list):
+        obj_path = os.path.join(model_dir, tracker_name, f"{tracker_name}.obj")
+        mesh = o3d.io.read_triangle_mesh(obj_path)
+        mesh.compute_vertex_normals()
+        mesh.transform(init_pose[idx])
+        mesh_list.append(mesh)
 
     # Visualize the initial pose of object
     sequence_path = os.path.join(sequence_dir, f"{sequence_id:04d}")
@@ -70,8 +78,12 @@ if __name__ == "__main__":
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(points)
     pcd.colors = o3d.utility.Vector3dVector(colors / 255.0)
-    o3d.visualization.draw_geometries([pcd, mesh, origin])
+    o3d.visualization.draw_geometries([pcd, *mesh_list, origin])
 
-    # 
+    #
     print("Save the initial pose:")
-    print_pose(np.linalg.inv(init_pose))
+    for idx, tracker_name in enumerate(tracker_name_list):
+        print(f"tracker_name: {tracker_name}")
+        print("init_pose:")
+        print_pose(init_pose[idx])
+        print("inv_init_pose:")
