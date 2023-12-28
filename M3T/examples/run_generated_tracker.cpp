@@ -16,6 +16,6 @@ int main(int argc, char *argv[]) {
   if (!GenerateConfiguredTracker(configfile_path, &tracker_ptr)) return -1;
 
   if (!tracker_ptr->SetUp()) return -1;
-  if (!tracker_ptr->RunTrackerProcess(false, false)) return -1;
+  if (!tracker_ptr->RunTrackerProcess(true, true)) return -1;
   return 0;
 }

@@ -7,9 +7,9 @@ project(M3T)
 
 # Options
 # =============================================================================
-option(USE_AZURE_KINECT "Use Azure Kinect" ON)
-option(USE_REALSENSE "Use RealSense D435" ON)
-option(USE_GTEST "Use gtest" ON)
+option(USE_AZURE_KINECT "Use Azure Kinect" OFF)
+option(USE_REALSENSE "Use RealSense D435" OFF)
+option(USE_GTEST "Use gtest" OFF)
 
 
 # Libraries
