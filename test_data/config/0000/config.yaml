@@ -1,0 +1,122 @@
+%YAML:1.0
+---
+LoaderColorCamera:
+   -
+      name: loader_color
+      metafile_path: "camera_color.yaml"
+NormalColorViewer:
+   -
+      name: color_viewer
+      color_camera: loader_color
+      renderer_geometry: renderer_geometry
+RendererGeometry:
+   -
+      name: renderer_geometry
+      bodies:
+         - plug
+         - socket
+Body:
+   -
+      name: plug
+      metafile_path: "plug_object.yaml"
+   -
+      name: socket
+      metafile_path: "socket_object.yaml"
+StaticDetector:
+   -
+      name: plug_detector
+      metafile_path: "plug_detector.yaml"
+      optimizer: plug_optimizer
+   -
+      name: socket_detector
+      metafile_path: "socket_detector.yaml"
+      optimizer: socket_optimizer
+RegionModel:
+   -
+      name: plug_region_model
+      metafile_path: "model.yaml"
+      body: plug
+   -
+      name: socket_region_model
+      metafile_path: "model.yaml"
+      body: socket
+RegionModality:
+   -
+      name: plug_region_modality
+      body: plug
+      color_camera: loader_color
+      region_model: plug_region_model
+      metafile_path: "region_modality.yaml"
+      measure_occlusions:
+         depth_camera: loader_depth
+   -
+      name: socket_region_modality
+      body: socket
+      color_camera: loader_color
+      region_model: socket_region_model
+      metafile_path: "region_modality.yaml"
+      measure_occlusions:
+         depth_camera: loader_depth
+LoaderDepthCamera:
+   -
+      name: loader_depth
+      metafile_path: "camera_depth.yaml"
+NormalDepthViewer:
+   -
+      name: depth_viewer
+      depth_camera: loader_depth
+      renderer_geometry: renderer_geometry
+DepthModel:
+   -
+      name: plug_depth_model
+      metafile_path: "model.yaml"
+      body: plug
+   -
+      name: socket_depth_model
+      metafile_path: "model.yaml"
+      body: socket
+DepthModality:
+   -
+      name: plug_depth_modality
+      body: plug
+      depth_camera: loader_depth
+      depth_model: plug_depth_model
+      metafile_path: "depth_modality.yaml"
+   -
+      name: socket_depth_modality
+      body: socket
+      depth_camera: loader_depth
+      depth_model: socket_depth_model
+      metafile_path: "depth_modality.yaml"
+Link:
+   -
+      name: plug_link
+      body: plug
+      modalities:
+         - plug_region_modality
+         - plug_depth_modality
+   -
+      name: socket_link
+      body: socket
+      modalities:
+         - socket_region_modality
+         - socket_depth_modality
+Optimizer:
+   -
+      name: plug_optimizer
+      root_link: plug_link
+   -
+      name: socket_optimizer
+      root_link: socket_link
+Tracker:
+   -
+      name: tracker
+      viewers:
+         - color_viewer
+         - depth_viewer
+      detectors:
+         - plug_detector
+         - socket_detector
+      optimizers:
+         - plug_optimizer
+         - socket_optimizer

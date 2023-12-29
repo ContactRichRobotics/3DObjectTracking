@@ -1,0 +1,22 @@
+%YAML:1.0
+---
+load_directory: /home/harvey/Project/3DObjectTracking/test_data/sequence/0000/depth
+intrinsics:
+   f_u: 5.9393402099609375e+02
+   f_v: 5.9393402099609375e+02
+   pp_x: 3.1891390991210938e+02
+   pp_y: 2.4896459960937500e+02
+   width: 640
+   height: 480
+camara2world_pose: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0.,
+       1. ]
+depth_scale: 1.0000000474974513e-03
+image_name_pre: ""
+load_index: 0
+n_leading_zeros: 0
+image_name_post: ""
+load_image_type: png

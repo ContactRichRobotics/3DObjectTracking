@@ -1,3 +1,7 @@
+import json
+import argparse
+
+
 def parse_robotics_data(filename):
     with open(filename, "r") as file:
         file_content = file.read()
@@ -26,8 +30,14 @@ def parse_robotics_data(filename):
 
 
 if __name__ == "__main__":
-    filename = "./test_data/log.txt"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--log_dir", type=str, default="./test_data/log")
+    parser.add_argument("--sequence_id", type=int, default=0)
+    args = parser.parse_args()
+
+    filename = f"{args.log_dir}/{args.sequence_id:04d}.log"
     parsed_data = parse_robotics_data(filename)
 
     # Print or process the parsed data as needed
-    print(parsed_data)
+    with open(f"{args.log_dir}/{args.sequence_id:04d}.json", "w") as file:
+        json.dump(parsed_data, file, indent=4)
