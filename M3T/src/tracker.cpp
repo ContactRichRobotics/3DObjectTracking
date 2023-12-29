@@ -257,6 +257,13 @@ bool Tracker::RunTrackerProcess(bool execute_detection, bool start_tracking,
     if (!UpdateViewers(iteration)) return false;
     if (quit_tracker_process_) return true;
     if (!synchronize_cameras_) WaitUntilCycleEnds(begin);
+    // VERBOSE
+    std::cout << "Iteration " << iteration << std::endl;
+    for (auto &link_ptr: link_ptrs_) {
+      std::cout << link_ptr->name() << ": " << std::endl;
+      std::cout << link_ptr->link2world_pose().matrix()
+                << std::endl;
+    }
   }
   return true;
 }
