@@ -1,5 +1,6 @@
 """ Visualize the initial pose of object
 """
+import argparse
 import os
 import numpy as np
 import open3d as o3d
@@ -30,6 +31,10 @@ def print_pose(pose):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sequence_id", type=int, default=0)
+    args = parser.parse_args()
+
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     tracker_name_list = ["plug", "socket"]
@@ -37,6 +42,7 @@ if __name__ == "__main__":
     sequence_dir = os.path.join(root_dir, "test_data", "sequence")
     sequence_id = 0
     export_dir = os.path.join(root_dir, "test_data", "config")
+    export_path = os.path.join(export_dir, f"{sequence_id:04d}")
 
     # Init pose
     init_pose_0 = np.eye(4, dtype=np.float32)
@@ -81,9 +87,17 @@ if __name__ == "__main__":
     o3d.visualization.draw_geometries([pcd, *mesh_list, origin])
 
     #
-    print("Save the initial pose:")
+    # print("Save the initial pose:")
+    # for idx, tracker_name in enumerate(tracker_name_list):
+    #     print(f"tracker_name: {tracker_name}")
+    #     print("init_pose:")
+    #     print_pose(init_pose[idx])
+    #     print("inv_init_pose:")
+
+    # Save the initial pose to detector file
     for idx, tracker_name in enumerate(tracker_name_list):
-        print(f"tracker_name: {tracker_name}")
-        print("init_pose:")
-        print_pose(init_pose[idx])
-        print("inv_init_pose:")
+        config_yaml_path = os.path.join(export_path, f"{tracker_name}_detector.yaml")
+        detector_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
+        detector_s.write("link2world_pose", init_pose[idx])  # the object init position
+        detector_s.write("reinit_iter", 0)  # no reinit
+        detector_s.release()

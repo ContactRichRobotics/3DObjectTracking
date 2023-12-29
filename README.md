@@ -17,7 +17,6 @@ python scripts/init_pose_guess.py
 ## Run tracking 
 
 ```bash
-cd ${BUILD_DIR}
 ./build/examples/run_generated_tracker ./test_data/config/0000/config.yaml >> test_data/log/0000.log
 ```
 
