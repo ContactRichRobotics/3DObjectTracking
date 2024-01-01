@@ -12,7 +12,7 @@ while True:
 
     # Deserialize the data
     num_matrices = len(message) // (16 * 8)  # 16 doubles, each 8 bytes
-    pose_matrices = np.frombuffer(message, dtype=np.float64).reshape(num_matrices, 16)
+    pose_matrices = np.frombuffer(message, dtype=np.float32).reshape(num_matrices, 16)
 
     # pose_matrices now contains a list of poses; the order is the same as the config
     print(pose_matrices)

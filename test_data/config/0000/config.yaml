@@ -35,6 +35,10 @@ ZMQPublisher:
    -
       name: publisher
       metafile_path: "publisher.yaml"
+ZMQSubscriber:
+   -
+      name: subscriber
+      metafile_path: "subscriber.yaml"
 RegionModel:
    -
       name: plug_region_model
@@ -126,3 +130,5 @@ Tracker:
          - socket_optimizer
       publishers:
          - publisher
+      subscribers:
+         - subscriber

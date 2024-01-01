@@ -34,7 +34,9 @@ set(SOURCES
         publisher.cpp
         subscriber.cpp
         tracker.cpp
-        zmq_publisher.cpp)
+        zmq_publisher.cpp
+        zmq_subscriber.cpp
+        )
 
 set(HEADERS 
         ../include/m3t/common.h
@@ -69,7 +71,9 @@ set(HEADERS
         ../include/m3t/subscriber.h
         ../include/m3t/tracker.h
         ../include/m3t/generator.h
-        ../include/m3t/zmq_publisher.h)
+        ../include/m3t/zmq_publisher.h
+        ../include/m3t/zmq_subscriber.h
+        )
 
 if (USE_AZURE_KINECT)
     list(APPEND SOURCES azure_kinect_camera.cpp)

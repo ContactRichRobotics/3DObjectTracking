@@ -39,13 +39,13 @@ bool ZMQPublisher::UpdatePublisher(int iteration) {
   UpdatePoses();
 
   // Serialize the data
-  size_t total_size = pose_matrices_.size() * sizeof(std::array<double, 16>);
+  size_t total_size = pose_matrices_.size() * sizeof(std::array<float, 16>);
   std::vector<uint8_t> buffer(total_size);
 
   uint8_t *ptr = buffer.data();
   for (auto &array : pose_matrices_) {
-    memcpy(ptr, array.data(), sizeof(std::array<double, 16>));
-    ptr += sizeof(std::array<double, 16>);
+    memcpy(ptr, array.data(), sizeof(std::array<float, 16>));
+    ptr += sizeof(std::array<float, 16>);
   }
 
   // Send the data
@@ -80,7 +80,7 @@ void ZMQPublisher::UpdatePoses() {
   pose_matrices_.clear();
   for (const auto &link_ptr : link_ptrs_) {
     auto &pose_matrix = link_ptr->link2world_pose().matrix();
-    std::array<double, 16> pose_matrix_array{};
+    std::array<float, 16> pose_matrix_array{};
     for (int i = 0; i < 16; ++i) {
       pose_matrix_array[i] = pose_matrix.data()[i];
     }

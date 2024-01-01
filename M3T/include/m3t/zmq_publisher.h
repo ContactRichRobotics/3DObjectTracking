@@ -44,7 +44,7 @@ class ZMQPublisher : public m3t::Publisher {
   zmq::socket_t socket_{};
 
   std::vector<std::shared_ptr<m3t::Link>> link_ptrs_{};
-  std::vector<std::array<double, 16>> pose_matrices_{};
+  std::vector<std::array<float, 16>> pose_matrices_{};
 };
 
 #endif

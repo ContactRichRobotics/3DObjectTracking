@@ -233,8 +233,10 @@ bool Link::UpdatePoses(const std::shared_ptr<Link> &parent_link_ptr,
                        body2joint_pose_;
     if (body_ptr_) body_ptr_->set_body2world_pose(link2world_pose_);
   } else {
+    std::cout << link2world_pose().matrix() << std::endl;
     link2world_pose_ = link2world_pose() * body2joint_pose_.inverse() *
                        pose_variation * body2joint_pose_;
+    std::cout << link2world_pose().matrix() << std::endl;
     if (body_ptr_) body_ptr_->set_body2world_pose(link2world_pose_);
   }
   return true;

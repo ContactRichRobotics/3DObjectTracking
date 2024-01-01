@@ -38,6 +38,7 @@
 #include <m3t/tracker.h>
 #include <m3t/viewer.h>
 #include <m3t/zmq_publisher.h>
+#include <m3t/zmq_subscriber.h>
 
 #include <string>
 #include <vector>
@@ -881,7 +882,7 @@ inline bool ConfigureTrackers(
     const std::vector<std::shared_ptr<Optimizer>>& optimizer_ptrs,
     const std::vector<std::shared_ptr<Detector>>& detector_ptrs,
     const std::vector<std::shared_ptr<ZMQPublisher>>& publisher_ptrs,
-    const std::vector<std::shared_ptr<Subscriber>>& subscriber_ptrs,
+    const std::vector<std::shared_ptr<ZMQSubscriber>>& subscriber_ptrs,
     const std::vector<std::shared_ptr<Refiner>>& refiner_ptrs,
     const std::vector<std::shared_ptr<Viewer>>& viewer_ptrs,
     std::vector<std::shared_ptr<Tracker>>* tracker_ptrs) {
@@ -1112,7 +1113,16 @@ inline bool GenerateConfiguredTracker(
   }
 
   // Configure subscribers
-  std::vector<std::shared_ptr<Subscriber>> subscriber_ptrs;
+  std::vector<std::shared_ptr<ZMQSubscriber>> subscriber_ptrs;
+  if (!ConfigureObjectsMetafileOptional<ZMQSubscriber>(
+          configfile_path, fs, "ZMQSubscriber", &subscriber_ptrs))
+    return false;
+  // Configure subscribers's link
+  for (const auto& subscriber_ptr : subscriber_ptrs) {
+    for (auto& link_ptr : link_ptrs) {
+      subscriber_ptr->AddLink(link_ptr);
+    }
+  }
 
   // Configure refiners
   std::vector<std::shared_ptr<Refiner>> refiner_ptrs;

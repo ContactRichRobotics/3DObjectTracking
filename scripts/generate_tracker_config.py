@@ -22,6 +22,8 @@ def generate_tracker_config(
     export_dir,
     publisher_address="localhost",
     publisher_port=5555,
+    subscriber_address="localhost",
+    subscriber_port=5556,
 ):
     # config macro
     OBJECT_SCALE = 1.0  # the size of object, influencing the accept threshold for depth modality
@@ -93,6 +95,14 @@ def generate_tracker_config(
     config_s.startWriteStruct("", cv2.FileNode_MAP)
     config_s.write("name", "publisher")
     config_s.write("metafile_path", "publisher.yaml")
+    config_s.endWriteStruct()
+    config_s.endWriteStruct()
+
+    # save the subscriber
+    config_s.startWriteStruct("ZMQSubscriber", cv2.FileNode_SEQ)
+    config_s.startWriteStruct("", cv2.FileNode_MAP)
+    config_s.write("name", "subscriber")
+    config_s.write("metafile_path", "subscriber.yaml")
     config_s.endWriteStruct()
     config_s.endWriteStruct()
 
@@ -191,6 +201,7 @@ def generate_tracker_config(
     config_s.write("detectors", [f"{tracker_name}_detector" for tracker_name in tracker_name_list])
     config_s.write("optimizers", [f"{tracker_name}_optimizer" for tracker_name in tracker_name_list])
     config_s.write("publishers", ["publisher"])
+    config_s.write("subscribers", ["subscriber"])
     config_s.endWriteStruct()
     config_s.endWriteStruct()
     config_s.release()
@@ -312,6 +323,13 @@ def generate_tracker_config(
     publisher_s.write("port", publisher_port)
     publisher_s.release()
 
+    # save the subscriber
+    config_yaml_path = os.path.join(export_path, "subscriber.yaml")
+    subscriber_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
+    subscriber_s.write("address", subscriber_address)
+    subscriber_s.write("port", subscriber_port)
+    subscriber_s.release()
+
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
@@ -329,6 +347,8 @@ if __name__ == "__main__":
     export_dir = os.path.join(root_dir, "test_data", "config")
     publisher_address = "localhost"
     publisher_port = 5555
+    subscriber_address = "localhost"
+    subscriber_port = 5556
 
     # generate the tracker config
     generate_tracker_config(
@@ -337,4 +357,8 @@ if __name__ == "__main__":
         sequence_dir,
         sequence_id,
         export_dir,
+        publisher_address,
+        publisher_port,
+        subscriber_address,
+        subscriber_port,
     )
