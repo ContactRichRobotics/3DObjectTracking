@@ -31,6 +31,10 @@ StaticDetector:
       name: socket_detector
       metafile_path: "socket_detector.yaml"
       optimizer: socket_optimizer
+ZMQPublisher:
+   -
+      name: publisher
+      metafile_path: "publisher.yaml"
 RegionModel:
    -
       name: plug_region_model
@@ -120,3 +124,5 @@ Tracker:
       optimizers:
          - plug_optimizer
          - socket_optimizer
+      publishers:
+         - publisher

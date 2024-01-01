@@ -33,7 +33,8 @@ set(SOURCES
         refiner.cpp
         publisher.cpp
         subscriber.cpp
-        tracker.cpp)
+        tracker.cpp
+        zmq_publisher.cpp)
 
 set(HEADERS 
         ../include/m3t/common.h
@@ -67,7 +68,8 @@ set(HEADERS
         ../include/m3t/publisher.h
         ../include/m3t/subscriber.h
         ../include/m3t/tracker.h
-        ../include/m3t/generator.h)
+        ../include/m3t/generator.h
+        ../include/m3t/zmq_publisher.h)
 
 if (USE_AZURE_KINECT)
     list(APPEND SOURCES azure_kinect_camera.cpp)
@@ -81,7 +83,7 @@ endif ()
 
 # Define libraries
 # =============================================================================
-set(LIBRARIES Eigen3::Eigen OpenGL::GL GLEW::GLEW glfw ${OpenCV_LIBRARIES})
+set(LIBRARIES Eigen3::Eigen OpenGL::GL GLEW::GLEW glfw ${OpenCV_LIBRARIES} zmq)
 if (UNIX)
     list(APPEND LIBRARIES pthread stdc++fs)
 endif ()

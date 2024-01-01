@@ -37,6 +37,7 @@
 #include <m3t/texture_modality.h>
 #include <m3t/tracker.h>
 #include <m3t/viewer.h>
+#include <m3t/zmq_publisher.h>
 
 #include <string>
 #include <vector>
@@ -879,7 +880,7 @@ inline bool ConfigureTrackers(
     const cv::FileStorage& file_storage,
     const std::vector<std::shared_ptr<Optimizer>>& optimizer_ptrs,
     const std::vector<std::shared_ptr<Detector>>& detector_ptrs,
-    const std::vector<std::shared_ptr<Publisher>>& publisher_ptrs,
+    const std::vector<std::shared_ptr<ZMQPublisher>>& publisher_ptrs,
     const std::vector<std::shared_ptr<Subscriber>>& subscriber_ptrs,
     const std::vector<std::shared_ptr<Refiner>>& refiner_ptrs,
     const std::vector<std::shared_ptr<Viewer>>& viewer_ptrs,
@@ -1099,7 +1100,16 @@ inline bool GenerateConfiguredTracker(
     return false;
 
   // Configure publishers
-  std::vector<std::shared_ptr<Publisher>> publisher_ptrs;
+  std::vector<std::shared_ptr<ZMQPublisher>> publisher_ptrs;
+  if (!ConfigureObjectsMetafileOptional<ZMQPublisher>(
+          configfile_path, fs, "ZMQPublisher", &publisher_ptrs))
+    return false;
+  // Configure publishers's link
+  for (const auto& publisher_ptr : publisher_ptrs) {
+    for (auto& link_ptr : link_ptrs) {
+      publisher_ptr->AddLink(link_ptr);
+    }
+  }
 
   // Configure subscribers
   std::vector<std::shared_ptr<Subscriber>> subscriber_ptrs;

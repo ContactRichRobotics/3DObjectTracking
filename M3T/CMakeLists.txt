@@ -61,6 +61,7 @@ if (OPENMP_FOUND)
     endIf ()
 endif ()
 
+find_package(ZeroMQ REQUIRED)
 
 # Compiler Settings
 # =============================================================================

@@ -11,6 +11,7 @@ import yaml
 import json
 import open3d as o3d
 import cv2
+import argparse
 
 
 def generate_tracker_config(
@@ -19,6 +20,8 @@ def generate_tracker_config(
     sequence_dir,
     sequence_id,
     export_dir,
+    publisher_address="localhost",
+    publisher_port=5555,
 ):
     # config macro
     OBJECT_SCALE = 1.0  # the size of object, influencing the accept threshold for depth modality
@@ -74,7 +77,7 @@ def generate_tracker_config(
         config_s.endWriteStruct()
     config_s.endWriteStruct()
 
-    # save the network detector
+    # save the detector
     detector_method = "StaticDetector"
     config_s.startWriteStruct(detector_method, cv2.FileNode_SEQ)
     for tracker_name in tracker_name_list:
@@ -83,6 +86,14 @@ def generate_tracker_config(
         config_s.write("metafile_path", f"{tracker_name}_detector.yaml")
         config_s.write("optimizer", f"{tracker_name}_optimizer")
         config_s.endWriteStruct()
+    config_s.endWriteStruct()
+
+    # save the publisher
+    config_s.startWriteStruct("ZMQPublisher", cv2.FileNode_SEQ)
+    config_s.startWriteStruct("", cv2.FileNode_MAP)
+    config_s.write("name", "publisher")
+    config_s.write("metafile_path", "publisher.yaml")
+    config_s.endWriteStruct()
     config_s.endWriteStruct()
 
     # save the region model
@@ -179,6 +190,7 @@ def generate_tracker_config(
     config_s.write("viewers", viewer_list)
     config_s.write("detectors", [f"{tracker_name}_detector" for tracker_name in tracker_name_list])
     config_s.write("optimizers", [f"{tracker_name}_optimizer" for tracker_name in tracker_name_list])
+    config_s.write("publishers", ["publisher"])
     config_s.endWriteStruct()
     config_s.endWriteStruct()
     config_s.release()
@@ -293,10 +305,15 @@ def generate_tracker_config(
         object_s.write("geometry2body_pose", np.eye(4))  # the pose of the geometry in the body frame
         object_s.release()
 
+    # save the publisher
+    config_yaml_path = os.path.join(export_path, "publisher.yaml")
+    publisher_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
+    publisher_s.write("address", publisher_address)
+    publisher_s.write("port", publisher_port)
+    publisher_s.release()
+
 
 if __name__ == "__main__":
-    import argparse
-
     # parser = argparse.ArgumentParser()
     # parser.add_argument("--tracker_name", type=str, required=True)
     # parser.add_argument("--model_dir", type=str, required=True)
@@ -310,6 +327,8 @@ if __name__ == "__main__":
     sequence_dir = os.path.join(root_dir, "test_data", "sequence")
     sequence_id = 0
     export_dir = os.path.join(root_dir, "test_data", "config")
+    publisher_address = "localhost"
+    publisher_port = 5555
 
     # generate the tracker config
     generate_tracker_config(

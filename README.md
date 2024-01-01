@@ -1,5 +1,16 @@
 # How to conduct tracking using M3T
 
+## Installation
+
+Install libzmq first install `libzmq3-dev` using `apt`.
+We need to build `cppzmq` with `ENABLE_DRAFTS=off`.
+
+```
+cmake -DENABLE_DRAFTS=off ..
+make -j8
+sudo make install
+```
+
 ## Move 
 
 ## Generate config
