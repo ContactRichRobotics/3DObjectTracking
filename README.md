@@ -31,6 +31,12 @@ python scripts/init_pose_guess.py
 ./build/examples/run_generated_tracker ./test_data/config/0000/config.yaml >> test_data/log/0000.log
 ```
 
+## Launch server
+
+```bash
+python scripts/example_zmq_server.py
+```
+
 ## Parse log
 
 ```bash
