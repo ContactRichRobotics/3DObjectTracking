@@ -1,6 +1,5 @@
 %YAML:1.0
 ---
-load_directory: /home/harvey/Project/3DObjectTracking/test_data/sequence/0000/depth
 intrinsics:
    f_u: 5.9393402099609375e+02
    f_v: 5.9393402099609375e+02

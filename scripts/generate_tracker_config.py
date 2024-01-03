@@ -24,6 +24,7 @@ def generate_tracker_config(
     publisher_port=5555,
     subscriber_address="localhost",
     subscriber_port=5556,
+    use_realsense=False,
 ):
     # config macro
     OBJECT_SCALE = 1.0  # the size of object, influencing the accept threshold for depth modality
@@ -46,7 +47,10 @@ def generate_tracker_config(
     config_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
 
     # save the camera yaml
-    config_s.startWriteStruct("LoaderColorCamera", cv2.FileNode_SEQ)
+    if use_realsense:
+        config_s.startWriteStruct("RealSenseColorCamera", cv2.FileNode_SEQ)
+    else:
+        config_s.startWriteStruct("LoaderColorCamera", cv2.FileNode_SEQ)
     config_s.startWriteStruct("", cv2.FileNode_MAP)
     config_s.write("name", "loader_color")
     config_s.write("metafile_path", "camera_color.yaml")
@@ -132,7 +136,10 @@ def generate_tracker_config(
     config_s.endWriteStruct()
 
     # save the depth camera
-    config_s.startWriteStruct("LoaderDepthCamera", cv2.FileNode_SEQ)
+    if not use_realsense:
+        config_s.startWriteStruct("LoaderDepthCamera", cv2.FileNode_SEQ)
+    else:
+        config_s.startWriteStruct("RealSenseDepthCamera", cv2.FileNode_SEQ)
     config_s.startWriteStruct("", cv2.FileNode_MAP)
     config_s.write("name", "loader_depth")
     config_s.write("metafile_path", "camera_depth.yaml")
@@ -222,7 +229,8 @@ def generate_tracker_config(
 
     config_yaml_path = os.path.join(export_path, "camera_color.yaml")
     cam_color_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
-    cam_color_s.write("load_directory", os.path.join(sequence_path, "color"))
+    if not use_realsense:
+        cam_color_s.write("load_directory", os.path.join(sequence_path, "color"))
     cam_color_s.startWriteStruct("intrinsics", cv2.FileNode_MAP)
     cam_color_s.write("f_u", f_u)
     cam_color_s.write("f_v", f_v)
@@ -243,7 +251,8 @@ def generate_tracker_config(
     # save the cam depth
     config_yaml_path = os.path.join(export_path, "camera_depth.yaml")
     cam_depth_s = cv2.FileStorage(config_yaml_path, cv2.FileStorage_WRITE)
-    cam_depth_s.write("load_directory", os.path.join(sequence_path, "depth"))
+    if not use_realsense:
+        cam_depth_s.write("load_directory", os.path.join(sequence_path, "depth"))
     cam_depth_s.startWriteStruct("intrinsics", cv2.FileNode_MAP)
     cam_depth_s.write("f_u", f_u)
     cam_depth_s.write("f_v", f_v)
@@ -361,4 +370,5 @@ if __name__ == "__main__":
         publisher_port,
         subscriber_address,
         subscriber_port,
+        use_realsense=True,
     )
