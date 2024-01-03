@@ -1,6 +1,6 @@
 %YAML:1.0
 ---
-RealSenseColorCamera:
+LoaderColorCamera:
    -
       name: loader_color
       metafile_path: "camera_color.yaml"
@@ -65,7 +65,7 @@ RegionModality:
       metafile_path: "region_modality.yaml"
       measure_occlusions:
          depth_camera: loader_depth
-RealSenseDepthCamera:
+LoaderDepthCamera:
    -
       name: loader_depth
       metafile_path: "camera_depth.yaml"
